@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Amazon ML Challenge 2026 — Business Entity Resolution Dashboard</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Marked.js for rendering markdown reports in-browser -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header>
+    <div class="container header-content">
+      <div class="logo-group">
+        <div class="logo-icon">⚡</div>
+        <div class="logo-title">
+          <h1>Amazon ML Challenge 2026</h1>
+          <span>Business Entity Resolution Engine</span>
+        </div>
+      </div>
+      <div class="status-badge" id="systemHealthBadge">
+        <div class="pulse-dot"></div>
+        <span id="healthText">Service Connected</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="container">
+    
+    <!-- Top Nav Tabs -->
+    <nav class="nav-tabs">
+      <button class="tab-btn active" onclick="switchTab('resolver')">🔍 Live Entity Matcher</button>
+      <button class="tab-btn" onclick="switchTab('inspector')">⚖️ Pairwise Deep Inspector</button>
+      <button class="tab-btn" onclick="switchTab('experiments')">📊 Experiment History & Leaderboard</button>
+      <button class="tab-btn" onclick="switchTab('reports')">📑 Technical Reports & Profiling</button>
+    </nav>
+
+    <!-- Tab 1: Live Entity Resolver -->
+    <section id="tab-resolver" class="view-panel active">
+      <div class="stats-grid" id="statsGrid">
+        <div class="stat-box"><div class="num" id="statTrainS1">2,500</div><div class="label">Train S1 Entities</div></div>
+        <div class="stat-box"><div class="num" id="statTestS1">1,000</div><div class="label">Test S1 Entities</div></div>
+        <div class="stat-box"><div class="num" id="statCandRecall">100.0%</div><div class="label">Candidate Recall</div></div>
+        <div class="stat-box"><div class="num" id="statValF05">1.0000</div><div class="label">Validation Macro F0.5</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🎯 Real-Time Query Entity Resolution</div>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">
+          Enter a business identity query. The engine executes multi-strategy candidate blocking, extracts 41 pairwise similarity features, and applies the trained LightGBM model in real-time.
+        </p>
+        
+        <form id="resolveForm" onsubmit="handleResolve(event)">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="queryName">Business Name *</label>
+              <input type="text" id="queryName" placeholder="e.g. Acme Global Technologies Inc." required>
+            </div>
+            <div class="form-group">
+              <label for="queryAddr">Business Address *</label>
+              <input type="text" id="queryAddr" placeholder="e.g. 123 Main St, Suite 400, New York, 10001" required>
+            </div>
+            <div class="form-group" style="max-width: 180px;">
+              <label for="queryCountry">Country Code</label>
+              <input type="text" id="queryCountry" placeholder="e.g. US, IN, GB" maxlength="4">
+            </div>
+            <div class="form-group" style="max-width: 180px;">
+              <label for="queryThreshold">Decision Threshold (<span id="thLabel">0.30</span>)</label>
+              <input type="range" id="queryThreshold" min="0.10" max="0.95" step="0.05" value="0.30" oninput="document.getElementById('thLabel').innerText = this.value">
+            </div>
+          </div>
+          
+          <div style="display: flex; gap: 12px; align-items: center;">
+            <button type="submit" class="btn-primary" id="btnResolve">
+              <span>⚡ Resolve Entity</span>
+            </button>
+            <button type="button" class="btn-secondary" onclick="loadSampleQuery()">
+              <span>Load Sample Query</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Results Container -->
+      <div id="resultsCard" class="card" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <div class="card-title" style="margin-bottom: 0;">Resolution Results</div>
+          <div id="resultSummaryBadge" style="font-size: 0.85rem; color: var(--accent-cyan);"></div>
+        </div>
+        <div id="matchList"></div>
+      </div>
+    </section>
+
+    <!-- Tab 2: Pairwise Deep Inspector -->
+    <section id="tab-inspector" class="view-panel">
+      <div class="card">
+        <div class="card-title">⚖️ Side-by-Side Pairwise Feature Breakdown</div>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">
+          Compare any two business records to see individual similarity metrics, token sort ratios, address character overlap, and final model classification probability.
+        </p>
+
+        <form id="compareForm" onsubmit="handleCompare(event)">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 20px;">
+            <!-- Entity 1 -->
+            <div style="background: rgba(15, 23, 42, 0.4); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+              <h4 style="margin-bottom: 12px; color: var(--accent-cyan);">Record A (Reference)</h4>
+              <div class="form-group" style="margin-bottom: 12px;">
+                <label>Business Name</label>
+                <input type="text" id="p1Name" value="Clearwater Analytics Pvt. Ltd." required>
+              </div>
+              <div class="form-group" style="margin-bottom: 12px;">
+                <label>Address</label>
+                <input type="text" id="p1Addr" value="450 Market Street, Suite 200, San Francisco, 94105" required>
+              </div>
+              <div class="form-group">
+                <label>Country</label>
+                <input type="text" id="p1Country" value="US">
+              </div>
+            </div>
+
+            <!-- Entity 2 -->
+            <div style="background: rgba(15, 23, 42, 0.4); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+              <h4 style="margin-bottom: 12px; color: var(--accent-green);">Record B (Candidate Target)</h4>
+              <div class="form-group" style="margin-bottom: 12px;">
+                <label>Business Name</label>
+                <input type="text" id="p2Name" value="Clearwater Analytics" required>
+              </div>
+              <div class="form-group" style="margin-bottom: 12px;">
+                <label>Address</label>
+                <input type="text" id="p2Addr" value="450 Market St #200, San Francisco, 94105, US" required>
+              </div>
+              <div class="form-group">
+                <label>Country</label>
+                <input type="text" id="p2Country" value="US">
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-primary">
+            <span>🔬 Run Deep Pair Inspection</span>
+          </button>
+        </form>
+      </div>
+
+      <div id="pairResultsCard" class="card" style="display: none;">
+        <div class="card-title">Pairwise Inspection Results</div>
+        <div id="pairVerdict" style="margin-bottom: 20px;"></div>
+        <div class="table-wrapper">
+          <table id="featureTable">
+            <thead>
+              <tr>
+                <th>Feature Name</th>
+                <th>Category</th>
+                <th>Measured Value</th>
+                <th>Interpretation</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 3: Experiments & Leaderboard -->
+    <section id="tab-experiments" class="view-panel">
+      <div class="card">
+        <div class="card-title">🧪 Experiment History Log (`experiments.csv`)</div>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 16px;">
+          Versioned track record of iterative improvements from V1 baseline to V5 final production matcher.
+        </p>
+        <div class="table-wrapper">
+          <table id="experimentsTable">
+            <thead>
+              <tr>
+                <th>Version</th>
+                <th>Day</th>
+                <th>Change Description</th>
+                <th>Model</th>
+                <th>Threshold</th>
+                <th>Cand. Recall</th>
+                <th>Val Precision</th>
+                <th>Val Recall</th>
+                <th>Val F0.5</th>
+                <th>Decision</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🏆 Submissions & Leaderboard Log (`leaderboard.csv`)</div>
+        <div class="table-wrapper">
+          <table id="leaderboardTable">
+            <thead>
+              <tr>
+                <th>Version</th>
+                <th>Day</th>
+                <th>Submission Time</th>
+                <th>Val F0.5</th>
+                <th>Public Score</th>
+                <th>Private Score</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tab 4: Technical Reports -->
+    <section id="tab-reports" class="view-panel">
+      <div class="card">
+        <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+          <button class="btn-secondary" onclick="loadReport('validation_report')">📊 Validation Report</button>
+          <button class="btn-secondary" onclick="loadReport('data_profile')">📈 Data Profile</button>
+          <button class="btn-secondary" onclick="loadReport('error_analysis')">⚠️ Error Analysis</button>
+          <button class="btn-secondary" onclick="loadReport('methodology')">📘 Methodology</button>
+          <button class="btn-secondary" onclick="loadReport('readme')">📖 README</button>
+        </div>
+        
+        <div id="reportContainer" class="markdown-body" style="background: rgba(15, 23, 42, 0.5); padding: 24px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+          <p style="color: var(--text-muted);">Select a report above to view its contents.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      Amazon ML Challenge 2026 — Business Entity Resolution Production Pipeline • Built with FastAPI, LightGBM, XGBoost & RapidFuzz
+    </div>
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

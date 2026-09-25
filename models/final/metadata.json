@@ -1,0 +1,14 @@
+{
+  "version": "V5",
+  "day": 1,
+  "timestamp": "2026-09-25T18:38:10.536524",
+  "model_type": "lightgbm",
+  "best_threshold": 0.3,
+  "val_f05": 1.0,
+  "val_precision": 1.0,
+  "val_recall": 1.0,
+  "candidate_recall": 1.0,
+  "features_count": 41,
+  "change_desc": "V5 - Production Matcher with F0.5-Optimized Precision Threshold",
+  "validator_passed": true
+}

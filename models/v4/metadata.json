@@ -1,0 +1,14 @@
+{
+  "version": "V4",
+  "day": 1,
+  "timestamp": "2026-09-25T18:37:34.455363",
+  "model_type": "xgboost",
+  "best_threshold": 0.3,
+  "val_f05": 1.0,
+  "val_precision": 1.0,
+  "val_recall": 1.0,
+  "candidate_recall": 1.0,
+  "features_count": 41,
+  "change_desc": "V4 - XGBoost Pairwise Classifier with Non-Linear Interactions",
+  "validator_passed": true
+}

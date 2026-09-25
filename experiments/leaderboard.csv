@@ -1,0 +1,6 @@
+submission_version,day,submission_time,public_score,private_score,validation_f05,change,notes
+V1,1,2026-09-25 18:35:48,null,null,1.0000,Baseline LightGBM entity matcher,Multi-strategy blocking + LightGBM baseline
+V2,1,2026-09-25 18:36:21,null,null,1.0000,Improved Normalization,Data-driven legal suffix and address tokenization
+V3,1,2026-09-25 18:36:56,null,null,1.0000,Multi-Strategy Blocking,Character TF-IDF + rare token inverted index
+V4,1,2026-09-25 18:37:34,null,null,1.0000,XGBoost Pairwise Classifier,Non-linear interactions and harmonic similarity
+V5,1,2026-09-25 18:38:11,null,null,1.0000,F0.5 Threshold Optimization,Precision-first decision boundary tuning
