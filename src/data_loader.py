@@ -12,7 +12,7 @@ REQUIRED_GT_COLUMNS = ["source1_entity_id", "matched_entity_ids"]
 
 def load_tsv(filepath: str, expected_columns: Optional[list] = None) -> pd.DataFrame:
     """
-    Safely load a TSV file with tab separation and string dtype preservation.
+    Safely and quickly load a TSV file with tab separation and string dtype preservation.
     """
     if not os.path.exists(filepath):
         raise FileNotFoundError(f"Dataset file not found at: {filepath}")
@@ -22,15 +22,9 @@ def load_tsv(filepath: str, expected_columns: Optional[list] = None) -> pd.DataF
         sep="\t",
         dtype=str,
         keep_default_na=False,
-        na_values=["", "NA", "null", "None", "NaN"]
+        na_filter=False,
+        quoting=3  # csv.QUOTE_NONE for maximum speed and raw preservation
     )
-    
-    # Fill NaN values with empty string
-    df = df.fillna("")
-    
-    # Strip whitespace from string columns
-    for col in df.columns:
-        df[col] = df[col].astype(str).str.strip()
         
     if expected_columns:
         missing = set(expected_columns) - set(df.columns)
@@ -79,11 +73,14 @@ def load_test_data(data_dir: str) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFr
 def parse_ground_truth(df_gt: pd.DataFrame) -> Dict[str, list]:
     """
     Parses ground truth into a dictionary mapping source1_entity_id -> list of matched target entity_ids.
+    Optimized for millions of rows.
     """
     gt_dict = {}
-    for _, row in df_gt.iterrows():
-        s1_id = row["source1_entity_id"]
-        matched_str = str(row["matched_entity_ids"]).strip()
+    s1_ids = df_gt["source1_entity_id"].astype(str).values
+    matched_strs = df_gt["matched_entity_ids"].astype(str).values
+    
+    for s1_id, matched_str in zip(s1_ids, matched_strs):
+        matched_str = matched_str.strip()
         if not matched_str or matched_str.lower() in ["nan", "none"]:
             gt_dict[s1_id] = []
         else:

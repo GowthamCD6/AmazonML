@@ -12,8 +12,13 @@ class Config:
     # Project paths
     project_root: str = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
     data_dir: str = os.path.join(project_root, "data")
-    train_dir: str = os.path.join(data_dir, "train")
-    test_dir: str = os.path.join(data_dir, "test")
+    
+    # Check if official student_resource dataset exists, otherwise use data/train
+    _official_train: str = os.path.join(data_dir, "student_resource", "dataset", "train")
+    _official_test: str = os.path.join(data_dir, "student_resource", "dataset", "test")
+    
+    train_dir: str = _official_train if os.path.exists(_official_train) else os.path.join(data_dir, "train")
+    test_dir: str = _official_test if os.path.exists(_official_test) else os.path.join(data_dir, "test")
     models_dir: str = os.path.join(project_root, "models")
     output_dir: str = os.path.join(project_root, "output")
     submissions_dir: str = os.path.join(project_root, "submissions")

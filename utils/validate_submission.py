@@ -82,10 +82,12 @@ def validate(matching_file, candidate_file, test_dir):
     total_matches = 0
     singletons = 0
     
-    for _, row in df_match.iterrows():
-        s1_id = row["source1_entity_id"]
-        matches_str = str(row["matched_entity_ids"]).strip()
-        if not matches_str:
+    s1_vals = df_match["source1_entity_id"].astype(str).values
+    match_vals = df_match["matched_entity_ids"].astype(str).values
+    
+    for s1_id, matches_str in zip(s1_vals, match_vals):
+        matches_str = matches_str.strip()
+        if not matches_str or matches_str.lower() in ["nan", "none"]:
             singletons += 1
             continue
             

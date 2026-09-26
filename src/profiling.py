@@ -51,10 +51,11 @@ def profile_dataset(train_dir: str, test_dir: str, report_path: str = "reports/d
                      ("Test S1", df_te_s1), ("Test S2", df_te_s2), ("Test S3", df_te_s3)]:
         missing_stats[name] = {col: int((df[col] == "").sum()) for col in df.columns}
 
-    # Name and Address Lengths (in tokens and chars)
-    def compute_len_stats(df, col):
-        lengths = df[col].astype(str).str.len()
-        words = df[col].astype(str).str.split().str.len()
+    # Name and Address Lengths (in tokens and chars, sampled for high speed)
+    def compute_len_stats(df, col, sample_n=50000):
+        series = df[col] if len(df) <= sample_n else df[col].sample(n=sample_n, random_state=42)
+        lengths = series.astype(str).str.len()
+        words = series.astype(str).str.count(r'\s+') + 1
         return {
             "avg_char_len": float(lengths.mean()),
             "max_char_len": int(lengths.max()) if len(lengths) > 0 else 0,
